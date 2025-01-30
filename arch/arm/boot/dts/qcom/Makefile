@@ -10,11 +10,8 @@ dtb-$(CONFIG_ARCH_QCOM) += \
 	qcom-apq8060-dragonboard.dtb \
 	qcom-apq8064-cm-qs600.dtb \
 	qcom-apq8064-ifc6410.dtb \
-	qcom-apq8064-nokia-fame.dtb \
-	#qcom-apq8064-samsung-jfvelte.dtb \
 	qcom-apq8064-sony-xperia-lagan-yuga.dtb \
 	qcom-apq8064-asus-nexus7-flo.dtb \
-	qcom-apq8064-lg-nexus4-mako.dtb \
 	qcom-apq8074-dragonboard.dtb \
 	qcom-apq8084-ifc6540.dtb \
 	qcom-apq8084-mtp.dtb \
@@ -33,6 +30,7 @@ dtb-$(CONFIG_ARCH_QCOM) += \
 	qcom-msm8226-microsoft-moneypenny.dtb \
 	qcom-msm8226-samsung-ms013g.dtb \
 	qcom-msm8226-samsung-s3ve3g.dtb \
+	qcom-msm8227-nokia-fame.dtb \
 	qcom-msm8660-surf.dtb \
 	qcom-msm8916-samsung-e5.dtb \
 	qcom-msm8916-samsung-e7.dtb \
@@ -45,7 +43,6 @@ dtb-$(CONFIG_ARCH_QCOM) += \
 	qcom-msm8926-samsung-matisselte.dtb \
 	qcom-msm8960-cdp.dtb \
 	qcom-msm8960-samsung-expressatt.dtb \
-	qcom-msm8960-sony-mint.dtb \
 	qcom-msm8974-lge-nexus5-hammerhead.dtb \
 	qcom-msm8974-samsung-hlte.dtb \
 	qcom-msm8974-sony-xperia-rhine-amami.dtb \
