@@ -216,8 +216,6 @@
 	firmware {
 		scm {
 			compatible = "qcom,scm";
-			clocks = <&rpmcc RPM_DAYTONA_FABRIC_CLK>;
-			clock-names = "core";
 		};
 	};
 
@@ -706,10 +704,6 @@
 			interrupt-names = "wdog", "fatal", "ready", "handover", "stop-ack";
 			memory-region = <&wcnss_mem>;
 
-			vddcx-supply = <&pm8038_s1>;
-			vddmx-supply = <&pm8038_l24>;
-			vddpx-supply = <&pm8038_l11>;
-
 			status = "disabled";
 
 			iris {
@@ -717,12 +711,6 @@
 
 				clocks = <&cxo_board>;
 				clock-names = "xo";
-
-				vddxo-supply = <&pm8038_l4>;
-				vddrfa-supply = <&pm8038_l1>;
-				vddpa-supply = <&pm8038_l10>;
-				vdddig-supply = <&pm8038_l2>;
-				// vddio l11
 			};
 
 			smd-edge {
@@ -752,6 +740,7 @@
 
 						qcom,smem-states = <&apps_smsm 10>, <&apps_smsm 9>;
 						qcom,smem-state-names = "tx-enable", "tx-rings-empty";
+						local-mac-address = [ 12 34 56 78 9a bc ];
 					};
 				};
 			};
