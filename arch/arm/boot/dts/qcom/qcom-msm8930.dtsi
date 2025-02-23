@@ -81,6 +81,50 @@
 		reg = <0x80000000 0>;
 	};
 
+	thermal-zones {
+		cpu0-thermal {
+			polling-delay-passive = <250>;
+			polling-delay = <1000>;
+
+			thermal-sensors = <&tsens 9>;
+			coefficients = <1175 0>;
+
+			trips {
+				cpu_alert0: trip0 {
+					temperature = <60000>;
+					hysteresis = <1000>;
+					type = "passive";
+				};
+				cpu_crit0: trip1 {
+					temperature = <60000>;
+					hysteresis = <1000>;
+					type = "critical";
+				};
+			};
+		};
+
+		cpu1-thermal {
+			polling-delay-passive = <250>;
+			polling-delay = <1000>;
+
+			thermal-sensors = <&tsens 10>;
+			coefficients = <1166 0>;
+
+			trips {
+				cpu_alert1: trip0 {
+					temperature = <60000>;
+					hysteresis = <1000>;
+					type = "passive";
+				};
+				cpu_crit1: trip1 {
+					temperature = <60000>;
+					hysteresis = <1000>;
+					type = "critical";
+				};
+			};
+		};
+	};
+
 	cpu-pmu {
 		compatible = "qcom,krait-pmu";
 		interrupts = <GIC_PPI 10 0x304>;
@@ -227,8 +271,8 @@
 
 		rpm_msg_ram: sram@10b000 {
 			compatible = "qcom,rpm-msg-ram";
-			reg = <0x10b000 0x1000>; // ?
-			ranges = <0 0x10b000 0x1000>;
+			reg = <0x10b000 0x2f00>; // TODO: exact size
+			ranges = <0 0x10b000 0x2f00>;
 
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -247,6 +291,10 @@
 
 			riva_master_stats: sram@196 {
 				reg = <0x196 0x32>;
+			};
+
+			rbcpr_stats: sram@2b00 {
+				reg = <0x2b00 0x2000>;
 			};
         };
 
@@ -290,7 +338,7 @@
 			clock-names = "cxo", "pxo", "pll4";
 			// TODO: thermal
 
-			/*tsens: thermal-sensor {
+			tsens: thermal-sensor {
 				compatible = "qcom,msm8960-tsens";
 
 				nvmem-cells = <&tsens_calib>, <&tsens_backup>;
@@ -300,7 +348,7 @@
 
 				#qcom,sensors = <10>;
 				#thermal-sensor-cells = <1>;
-			};*/
+			};
 		};
 
 		lcc: clock-controller@28000000 {
@@ -390,6 +438,11 @@
 						   <&lpass_master_stats>,
 						   <&riva_master_stats>;
 				qcom,master-names = "KPSS", "MPSS", "LPASS", "RIVA";
+			};
+
+			rbcpr-stats {
+				compatible = "qcom,rpm-rbcpr-stats";
+				qcom,rpm-msg-ram = <&rbcpr_stats>;
 			};
 		};
 
