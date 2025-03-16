@@ -5,8 +5,8 @@
 #![allow(missing_docs)]
 
 use kernel::{
-    c_str, debugfs, file,
-    file::File,
+    c_str, debugfs,
+    fs::file::{self, File},
     io_buffer::IoBufferWriter,
     prelude::*,
     sync::{Arc, SpinLock},
@@ -70,10 +70,10 @@ struct RustDebugfs {
 }
 impl kernel::Module for RustDebugfs {
     fn init(_module: &'static ThisModule) -> Result<Self> {
-        let dir = Arc::try_new(debugfs::Registration::register_dir(
-            c_str!("rust_samples"),
-            None,
-        )?)?;
+        let dir = Arc::new(
+            debugfs::Registration::register_dir(c_str!("rust_samples"), None)?,
+            GFP_KERNEL,
+        )?;
 
         let sample_file = debugfs::Registration::register_file::<SampleFile>(
             c_str!("sample"),
@@ -88,9 +88,12 @@ impl kernel::Module for RustDebugfs {
             c_str!("sample"),
         )?;
 
-        let attribute = Arc::pin_init(pin_init!(IncAttribute {
-            data <- kernel::new_spinlock!(0x42),
-        }))?;
+        let attribute = Arc::pin_init(
+            pin_init!(IncAttribute {
+                data <- kernel::new_spinlock!(0x42),
+            }),
+            GFP_KERNEL,
+        )?;
         let inc_attribute = attribute.register(
             c_str!("inc_attribute"),
             Mode::from_int(0666),

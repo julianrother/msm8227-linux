@@ -303,13 +303,13 @@ macro_rules! attribute {
         }
 
         #[vtable]
-        impl $crate::file::Operations for $attribute_type {
+        impl $crate::fs::file::Operations for $attribute_type {
             type OpenData = $crate::sync::Arc<Self>;
             type Data = $crate::sync::Arc<$crate::debugfs::attr::AttributeData>;
 
             fn open(
                 data: &Self::OpenData,
-                file: &$crate::file::File,
+                file: &$crate::fs::file::File,
             ) -> $crate::error::Result<Self::Data> {
                 use ::core::option::Option::Some;
 
@@ -321,13 +321,13 @@ macro_rules! attribute {
                 )
             }
 
-            fn release(data: Self::Data, file: &$crate::file::File) {
+            fn release(data: Self::Data, file: &$crate::fs::file::File) {
                 $crate::debugfs::attr::release(data, file);
             }
 
             fn read(
                 data: $crate::sync::ArcBorrow<'_, $crate::debugfs::attr::AttributeData>,
-                file: &$crate::file::File,
+                file: &$crate::fs::file::File,
                 writer: &mut impl $crate::io_buffer::IoBufferWriter,
                 offset: u64,
             ) -> $crate::error::Result<usize> {
@@ -336,7 +336,7 @@ macro_rules! attribute {
 
             fn write(
                 data: $crate::sync::ArcBorrow<'_, $crate::debugfs::attr::AttributeData>,
-                file: &$crate::file::File,
+                file: &$crate::fs::file::File,
                 reader: &mut impl $crate::io_buffer::IoBufferReader,
                 offset: u64,
             ) -> $crate::error::Result<usize> {
