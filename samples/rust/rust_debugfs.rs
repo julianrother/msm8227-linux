@@ -9,7 +9,7 @@ use kernel::{
     fs::file::{self, File},
     io_buffer::IoBufferWriter,
     prelude::*,
-    sync::{Arc, SpinLock},
+    sync::Arc,
     types::Mode,
 };
 
@@ -40,32 +40,8 @@ impl file::Operations for SampleFile {
     }
 }
 
-#[pin_data]
-struct IncAttribute {
-    #[pin]
-    data: SpinLock<i64>,
-}
-
-impl debugfs::attr::Attribute<i64> for IncAttribute {
-    fn get(&self) -> Result<i64> {
-        let mut guard = self.data.lock();
-        let ret = *guard;
-        *guard = ret + 1;
-        Ok(ret)
-    }
-
-    fn set(&self, val: i64) -> Result {
-        let mut guard = self.data.lock();
-        *guard = val;
-        Ok(())
-    }
-}
-
-debugfs::attribute_signed!(IncAttribute, "%#d\n");
-
 struct RustDebugfs {
     _sample_file: debugfs::PinnedRegistration,
-    _inc_attribute: debugfs::PinnedRegistration<Arc<IncAttribute>>,
     _symlink: debugfs::Registration<()>,
 }
 impl kernel::Module for RustDebugfs {
@@ -88,21 +64,8 @@ impl kernel::Module for RustDebugfs {
             c_str!("sample"),
         )?;
 
-        let attribute = Arc::pin_init(
-            pin_init!(IncAttribute {
-                data <- kernel::new_spinlock!(0x42),
-            }),
-            GFP_KERNEL,
-        )?;
-        let inc_attribute = attribute.register(
-            c_str!("inc_attribute"),
-            Mode::from_int(0666),
-            Some(dir.clone()),
-        )?;
-
         Ok(Self {
             _sample_file: sample_file,
-            _inc_attribute: inc_attribute,
             _symlink: symlink,
         })
     }
