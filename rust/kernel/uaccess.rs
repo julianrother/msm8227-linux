@@ -9,6 +9,7 @@ use crate::{
     bindings,
     error::Result,
     ffi::c_void,
+    io_buffer::{IoBufferReader, IoBufferWriter},
     prelude::*,
     transmute::{AsBytes, FromBytes},
 };
@@ -296,6 +297,42 @@ impl UserSliceReader {
     }
 }
 
+impl IoBufferReader for UserSliceReader {
+    /// Returns the number of bytes left to be read from this.
+    ///
+    /// Note that even reading less than this number of bytes may fail.
+    fn len(&self) -> usize {
+        self.length
+    }
+
+    fn buffer(&self) -> Option<*mut core::ffi::c_void> {
+        Some(self.ptr as *mut core::ffi::c_void)
+    }
+
+    /// Reads raw data from the user slice into a raw kernel buffer.
+    ///
+    /// # Safety
+    ///
+    /// The output buffer must be valid.
+    unsafe fn read_raw(&mut self, out: *mut u8, len: usize) -> Result {
+        if len > self.length || len > u32::MAX as usize {
+            return Err(EFAULT);
+        }
+        let res = unsafe {
+            bindings::copy_from_user(out as _, self.ptr as *mut core::ffi::c_void, len as _)
+        };
+        if res != 0 {
+            return Err(EFAULT);
+        }
+        // Since this is not a pointer to a valid object in our program,
+        // we cannot use `add`, which has C-style rules for defined
+        // behavior.
+        self.ptr = self.ptr.wrapping_add(len);
+        self.length -= len;
+        Ok(())
+    }
+}
+
 /// A writer for [`UserSlice`].
 ///
 /// Used to incrementally write into the user slice.
@@ -365,6 +402,55 @@ impl UserSliceWriter {
         if res != 0 {
             return Err(EFAULT);
         }
+        self.ptr = self.ptr.wrapping_add(len);
+        self.length -= len;
+        Ok(())
+    }
+}
+
+impl IoBufferWriter for UserSliceWriter {
+    fn len(&self) -> usize {
+        self.length
+    }
+
+    fn buffer(&self) -> Option<*mut core::ffi::c_void> {
+        Some(self.ptr as *mut core::ffi::c_void)
+    }
+
+    fn clear(&mut self, mut len: usize) -> Result {
+        let mut ret = Ok(());
+        if len > self.length {
+            ret = Err(EFAULT);
+            len = self.length;
+        }
+
+        // SAFETY: The buffer will be validated by `clear_user`. We ensure that `len` is within
+        // bounds in the check above.
+        let left =
+            unsafe { bindings::clear_user(self.ptr as *mut core::ffi::c_void, len as _) } as usize;
+        if left != 0 {
+            ret = Err(EFAULT);
+            len -= left;
+        }
+
+        self.ptr = self.ptr.wrapping_add(len);
+        self.length -= len;
+        ret
+    }
+
+    unsafe fn write_raw(&mut self, data: *const u8, len: usize) -> Result {
+        if len > self.length || len > u32::MAX as usize {
+            return Err(EFAULT);
+        }
+        let res = unsafe {
+            bindings::copy_to_user(self.ptr as *mut core::ffi::c_void, data as _, len as _)
+        };
+        if res != 0 {
+            return Err(EFAULT);
+        }
+        // Since this is not a pointer to a valid object in our program,
+        // we cannot use `add`, which has C-style rules for defined
+        // behavior.
         self.ptr = self.ptr.wrapping_add(len);
         self.length -= len;
         Ok(())

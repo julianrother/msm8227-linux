@@ -24,18 +24,14 @@
 #![feature(const_mut_refs)]
 #![feature(const_ptr_write)]
 #![feature(const_refs_to_cell)]
-
 #![feature(allocator_api)]
 #![feature(associated_type_defaults)]
 #![feature(coerce_unsized)]
 #![feature(c_size_t)]
 #![feature(dispatch_from_dyn)]
-#![feature(new_uninit)]
 #![feature(offset_of)]
 #![feature(ptr_metadata)]
-#![feature(receiver_trait)]
 #![feature(unsize)]
-
 
 // Ensure conditional compilation based on the kernel configuration works;
 // otherwise we may silently break things like initcall handling.
@@ -64,9 +60,9 @@ pub mod firmware;
 pub mod fs;
 pub mod init;
 pub mod io;
+pub mod io_buffer;
 pub mod ioctl;
 pub mod jump_label;
-pub mod io_buffer;
 #[cfg(CONFIG_KUNIT)]
 pub mod kunit;
 pub mod list;
@@ -97,7 +93,6 @@ pub mod tracepoint;
 pub mod transmute;
 pub mod types;
 pub mod uaccess;
-pub mod user_ptr;
 pub mod workqueue;
 
 #[doc(hidden)]
