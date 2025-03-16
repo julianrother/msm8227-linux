@@ -521,7 +521,7 @@ impl<A: OpenAdapter<T::OpenData>, T: Operations> OperationsVtable<A, T> {
         offset: *mut bindings::loff_t,
     ) -> core::ffi::c_ssize_t {
         from_result(|| {
-            let mut data = unsafe { UserSlice::new(buf as usize, len).writer() };
+            let mut data = UserSlice::new(buf as usize, len).writer();
             // SAFETY: `private_data` was initialised by `open_callback` with a value returned by
             // `T::Data::into_foreign`. `T::Data::from_foreign` is only called by the
             // `release` callback, which the C API guarantees that will be called only when all
@@ -548,7 +548,7 @@ impl<A: OpenAdapter<T::OpenData>, T: Operations> OperationsVtable<A, T> {
         offset: *mut bindings::loff_t,
     ) -> core::ffi::c_ssize_t {
         from_result(|| {
-            let mut data = unsafe { UserSlice::new(buf as usize, len).reader() };
+            let mut data = UserSlice::new(buf as usize, len).reader();
             // SAFETY: `private_data` was initialised by `open_callback` with a value returned by
             // `T::Data::into_foreign`. `T::Data::from_foreign` is only called by the
             // `release` callback, which the C API guarantees that will be called only when all
