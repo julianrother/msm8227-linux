@@ -56,6 +56,7 @@ struct qcom_cpufreq_match_data {
 			   struct qcom_cpufreq_drv *drv);
 	const char **pd_names;
 	unsigned int num_pd_names;
+	const char * const *regulator_names;
 };
 
 struct qcom_cpufreq_drv_cpu {
@@ -278,8 +279,6 @@ static int qcom_cpufreq_apq8064_name_version(struct device *cpu_dev,
 
 	drv->versions = (1 << speed);
 
-	pr_err("APQ8064 OK\n");
-
 	kfree(speedbin);
 	return ret;
 }
@@ -447,8 +446,14 @@ static const struct qcom_cpufreq_match_data match_data_qcs404 = {
 	.num_pd_names = 1,
 };
 
+static const char * apq8064_regulator_names[] = {
+	"vdd-core",
+	NULL
+};
+
 static const struct qcom_cpufreq_match_data match_data_apq8064 = {
 	.get_version = qcom_cpufreq_apq8064_name_version,
+	.regulator_names = apq8064_regulator_names,
 };
 
 static const struct qcom_cpufreq_match_data match_data_ipq6018 = {
@@ -536,6 +541,9 @@ static int qcom_cpufreq_probe(struct platform_device *pdev)
 			goto free_opp;
 		}
 
+		if (drv->data->regulator_names)
+			config.regulator_names = drv->data->regulator_names;
+
 		if (drv->data->get_version) {
 			config.supported_hw = &drv->versions;
 			config.supported_hw_count = 1;
@@ -544,7 +552,7 @@ static int qcom_cpufreq_probe(struct platform_device *pdev)
 				config.prop_name = pvs_name;
 		}
 
-		if (config.supported_hw) {
+		if (config.supported_hw || config.regulator_names) {
 			drv->cpus[cpu].opp_token = dev_pm_opp_set_config(cpu_dev, &config);
 			if (drv->cpus[cpu].opp_token < 0) {
 				ret = drv->cpus[cpu].opp_token;
