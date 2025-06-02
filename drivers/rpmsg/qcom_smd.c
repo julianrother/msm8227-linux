@@ -1369,8 +1369,9 @@ static int qcom_smd_parse_edge(struct device *dev,
 	edge->mbox_chan = mbox_request_channel(&edge->mbox_client, 0);
 	if (IS_ERR(edge->mbox_chan)) {
 		if (PTR_ERR(edge->mbox_chan) != -ENODEV) {
-			ret = PTR_ERR(edge->mbox_chan);
-			goto put_node;
+			pr_err("smd: bad mbox: %ld\n", PTR_ERR(edge->mbox_chan));
+			//ret = PTR_ERR(edge->mbox_chan);
+			//goto put_node;
 		}
 
 		edge->mbox_chan = NULL;
