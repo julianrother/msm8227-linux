@@ -35,11 +35,13 @@ description: |
         ipq9574
         mdm9615
         msm8226
+        msm8227
         msm8660
         msm8916
         msm8917
         msm8926
         msm8929
+        msm8930
         msm8939
         msm8953
         msm8956
@@ -166,6 +168,12 @@ properties:
 
       - items:
           - enum:
+              - nokia,fame
+              - sony,nicki
+          - const: qcom,msm8227
+
+      - items:
+          - enum:
               - htc,memul
               - microsoft,superman-lte
               - microsoft,tesla
@@ -178,6 +186,11 @@ properties:
           - enum:
               - wingtech,wt82918hd
           - const: qcom,msm8929
+
+      - items:
+          - enum:
+              - samsung,loganrelte
+          - const: msm8930
 
       - items:
           - enum:
